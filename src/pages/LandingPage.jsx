@@ -1,9 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function LandingPage() {
   const navigate = useNavigate();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     <div
@@ -38,12 +48,15 @@ export default function LandingPage() {
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <span style={{ fontSize: 28 }}>🅿️</span>
             <span
-              style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.5px" }}
-            >
-            </span>
+              style={{
+                fontSize: 22,
+                fontWeight: 800,
+                letterSpacing: "-0.5px",
+              }}
+            ></span>
           </div>
 
-          {/* Desktop Navigation */}
+          {/* Navigation */}
           <div
             style={{
               display: "flex",
@@ -51,71 +64,65 @@ export default function LandingPage() {
               alignItems: "center",
             }}
           >
-            <button
-              onClick={() => navigate("/attendant/login")}
-              style={{
-                background: "transparent",
-                border: "1px solid #334",
-                color: "#aab",
-                padding: "10px 20px",
-                borderRadius: 8,
-                cursor: "pointer",
-                fontSize: 14,
-                transition: "all 0.2s",
-                display: "none",
-                "@media (min-width: 768px)": {
-                  display: "block",
-                },
-              }}
-            >
-              Attendant Login
-            </button>
-            <button
-              onClick={() => navigate("/attendant/login")}
-              style={{
-                background: "#2563eb",
-                border: "none",
-                color: "#fff",
-                padding: "10px 24px",
-                borderRadius: 8,
-                cursor: "pointer",
-                fontSize: 14,
-                fontWeight: 600,
-                transition: "all 0.2s",
-                display: "none",
-                "@media (min-width: 768px)": {
-                  display: "block",
-                },
-              }}
-            >
-              Get Started →
-            </button>
+            {!isMobile && (
+              <button
+                onClick={() => navigate("/attendant/login")}
+                style={{
+                  background: "transparent",
+                  border: "1px solid #334",
+                  color: "#aab",
+                  padding: "10px 20px",
+                  borderRadius: 8,
+                  cursor: "pointer",
+                  fontSize: 14,
+                  transition: "all 0.2s",
+                }}
+              >
+                Attendant Login
+              </button>
+            )}
 
-            {/* Hamburger - visible on mobile */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              style={{
-                background: "transparent",
-                border: "1px solid #334",
-                color: "#aab",
-                padding: "8px 14px",
-                borderRadius: 8,
-                cursor: "pointer",
-                fontSize: 24,
-                lineHeight: 1,
-                display: "block",
-                "@media (min-width: 768px)": {
-                  display: "none",
-                },
-              }}
-            >
-              {isMenuOpen ? "✕" : "☰"}
-            </button>
+            {!isMobile && (
+              <button
+                onClick={() => navigate("/attendant/login")}
+                style={{
+                  background: "#2563eb",
+                  border: "none",
+                  color: "#fff",
+                  padding: "10px 24px",
+                  borderRadius: 8,
+                  cursor: "pointer",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  transition: "all 0.2s",
+                }}
+              >
+                Get Started →
+              </button>
+            )}
+
+            {isMobile && (
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                style={{
+                  background: "transparent",
+                  border: "1px solid #334",
+                  color: "#aab",
+                  padding: "8px 14px",
+                  borderRadius: 8,
+                  cursor: "pointer",
+                  fontSize: 24,
+                  lineHeight: 1,
+                }}
+              >
+                {isMenuOpen ? "✕" : "☰"}
+              </button>
+            )}
           </div>
         </div>
 
         {/* Mobile Menu */}
-        {isMenuOpen && (
+        {isMobile && isMenuOpen && (
           <div
             style={{
               display: "flex",
@@ -146,6 +153,7 @@ export default function LandingPage() {
             >
               Attendant Login
             </button>
+
             <button
               onClick={() => {
                 navigate("/attendant/login");
