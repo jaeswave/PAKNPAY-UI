@@ -42,6 +42,8 @@ export default function SignupPage() {
         },
       });
 
+      console.log("hello world",res)
+
       localStorage.setItem('parkpay_token', res.data.token);
       localStorage.setItem('parkpay_attendant', JSON.stringify(res.data.attendant));
       setDriverUrl(`${window.location.origin}/park/${res.data.lot.shortCode}`);

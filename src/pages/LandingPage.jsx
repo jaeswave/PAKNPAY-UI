@@ -53,7 +53,7 @@ export default function LandingPage() {
                 fontWeight: 800,
                 letterSpacing: "-0.5px",
               }}
-            ></span>
+            >PaknPay</span>
           </div>
 
           {/* Navigation */}
