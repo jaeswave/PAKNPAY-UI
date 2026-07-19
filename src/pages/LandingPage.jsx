@@ -40,7 +40,6 @@ export default function LandingPage() {
             <span
               style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.5px" }}
             >
-              ParkPay
             </span>
           </div>
 
