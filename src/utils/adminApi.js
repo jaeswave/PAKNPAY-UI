@@ -6,7 +6,7 @@ import axios from 'axios';
 // completely independent rather than trying to make one interceptor branch
 // between two unrelated auth schemes.
 const adminApi = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: `https://paknpay-api.onrender.com/api`
 });
 
 adminApi.interceptors.request.use((config) => {
