@@ -31,7 +31,7 @@ export default function LoginPage() {
       <div style={{ width: '100%', maxWidth: 380, background: '#fff', borderRadius: 20, padding: 32, boxShadow: '0 8px 40px #0003' }}>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <div style={{ fontSize: 48, marginBottom: 8 }}>🅿️</div>
-          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800 }}>ParkPay</h1>
+          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800 }}>PaknPay</h1>
           <p style={{ color: '#6b7280', fontSize: 14, margin: '8px 0 0' }}>Attendant / Owner Login</p>
         </div>
         <form onSubmit={handleLogin}>
