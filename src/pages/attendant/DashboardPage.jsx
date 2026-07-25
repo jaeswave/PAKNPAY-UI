@@ -35,10 +35,14 @@ export default function DashboardPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [spotInput, setSpotInput] = useState("");
   const [simulating, setSimulating] = useState(false);
+  // const [showValet, setShowValet] = useState(false);
   const [showValet, setShowValet] = useState(false);
+  const [lot, setLot] = useState(null);
+  const [showQR, setShowQR] = useState(false);
 
   useEffect(() => {
     fetchSessions();
+    fetchLot();
     const interval = setInterval(fetchSessions, 15000);
     const onOnline = () => setIsOnline(true);
     const onOffline = () => setIsOnline(false);
@@ -61,6 +65,15 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchLot = async () => {
+    try {
+      const lotId = attendant?.lotId;
+      if (!lotId) return;
+      const res = await api.get(`/lots/${lotId}`);
+      setLot(res.data.lot);
+    } catch {}
   };
 
   const handleAction = async (action, sessionId) => {
@@ -234,6 +247,39 @@ export default function DashboardPage() {
             }}
           >
             + Manual
+          </button>
+          {/* <button
+            onClick={() => setShowValet(true)}
+            style={{
+              background: "#059669",
+              color: "#fff",
+              border: "none",
+              padding: "6px 10px",
+              borderRadius: 8,
+              fontSize: 11,
+              fontWeight: 600,
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+            }}
+          >
+            🎫 Check In Valet
+          </button> */}
+
+          <button
+            onClick={() => setShowQR(true)}
+            style={{
+              background: "#f97316",
+              color: "#fff",
+              border: "none",
+              padding: "6px 10px",
+              borderRadius: 8,
+              fontSize: 11,
+              fontWeight: 600,
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+            }}
+          >
+            📱 Driver QR
           </button>
           <button
             onClick={() => setShowValet(true)}
@@ -559,6 +605,199 @@ export default function DashboardPage() {
           }}
         />
       )}
+      {showQR && <DriverQRModal lot={lot} onClose={() => setShowQR(false)} />}
+    </div>
+  );
+}
+
+function DriverQRModal({ lot, onClose }) {
+  const driverUrl = lot
+    ? `${window.location.origin}/park/${lot.shortCode}`
+    : "";
+  const valetUrl = lot
+    ? `${window.location.origin}/valet/${lot.shortCode}`
+    : "";
+
+  if (!lot) {
+    return (
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          background: "#0008",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 16,
+          zIndex: 100,
+        }}
+        onClick={onClose}
+      >
+        <div
+          style={{
+            background: "#fff",
+            borderRadius: 16,
+            padding: 24,
+            textAlign: "center",
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <p style={{ color: "#64748b" }}>Loading lot info...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "#0008",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 16,
+        zIndex: 100,
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          background: "#fff",
+          borderRadius: 16,
+          padding: 24,
+          width: "100%",
+          maxWidth: 360,
+          textAlign: "center",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div style={{ fontWeight: 800, fontSize: 17, marginBottom: 4 }}>
+          {lot.name}
+        </div>
+        <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 16 }}>
+          Show this to drivers who can't scan the printed sign
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: 12,
+          }}
+        >
+          <img
+            src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(driverUrl)}`}
+            alt="Parking QR code"
+            style={{
+              width: 200,
+              height: 200,
+              borderRadius: 12,
+              border: "1px solid #e2e8f0",
+            }}
+          />
+        </div>
+
+        <div
+          style={{
+            background: "#f8fafc",
+            borderRadius: 8,
+            padding: "10px 12px",
+            marginBottom: 10,
+          }}
+        >
+          <div
+            style={{
+              fontFamily: "monospace",
+              fontSize: 12,
+              color: "#1e40af",
+              wordBreak: "break-all",
+            }}
+          >
+            {driverUrl}
+          </div>
+        </div>
+        <button
+          onClick={() => {
+            navigator.clipboard.writeText(driverUrl);
+            toast.success("Copied!");
+          }}
+          style={{
+            background: "#1d4ed8",
+            color: "#fff",
+            border: "none",
+            padding: "10px 20px",
+            borderRadius: 8,
+            cursor: "pointer",
+            fontWeight: 600,
+            fontSize: 13,
+            marginBottom: 16,
+          }}
+        >
+          Copy Parking Link
+        </button>
+
+        <div style={{ borderTop: "1px dashed #e2e8f0", paddingTop: 14 }}>
+          <div style={{ fontSize: 12, color: "#64748b", marginBottom: 8 }}>
+            Prefer valet? Share this link instead:
+          </div>
+          <div
+            style={{
+              background: "#f0fdf4",
+              borderRadius: 8,
+              padding: "8px 10px",
+              marginBottom: 10,
+            }}
+          >
+            <div
+              style={{
+                fontFamily: "monospace",
+                fontSize: 11,
+                color: "#059669",
+                wordBreak: "break-all",
+              }}
+            >
+              {valetUrl}
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(valetUrl);
+              toast.success("Copied!");
+            }}
+            style={{
+              background: "#059669",
+              color: "#fff",
+              border: "none",
+              padding: "8px 16px",
+              borderRadius: 8,
+              cursor: "pointer",
+              fontWeight: 600,
+              fontSize: 12,
+            }}
+          >
+            Copy Valet Link
+          </button>
+        </div>
+
+        <button
+          onClick={onClose}
+          style={{
+            display: "block",
+            width: "100%",
+            background: "transparent",
+            color: "#64748b",
+            border: "none",
+            padding: "12px",
+            fontSize: 13,
+            cursor: "pointer",
+            marginTop: 12,
+          }}
+        >
+          Close
+        </button>
+      </div>
     </div>
   );
 }

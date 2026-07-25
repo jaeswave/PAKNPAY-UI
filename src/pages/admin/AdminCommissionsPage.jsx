@@ -91,7 +91,7 @@ export default function AdminCommissionsPage() {
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <span style={{ fontSize: 22 }}>🛡️</span>
             <div style={{ fontWeight: 800, fontSize: 16 }}>
-              Platform Commission Dashboard
+              Administration Dashboard
             </div>
           </div>
           <button

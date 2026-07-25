@@ -1028,6 +1028,8 @@ function CommissionTab() {
         api.get("/payments/commissions/mine"),
         api.get("/settlements/mine"),
       ]);
+
+      console.log("hello world",summaryRes)
       setSummary(summaryRes.data);
       setSettlements(settlementsRes.data.settlements || []);
     } catch {
