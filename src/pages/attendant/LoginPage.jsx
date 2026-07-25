@@ -16,11 +16,9 @@ export default function LoginPage() {
     try {
       const data = await login(phone, pin);
       toast.success('Welcome back!');
-      if (data.attendant.role === 'owner') {
-        navigate('/owner/dashboard');
-      } else {
+     
         navigate('/attendant/dashboard');
-      }
+      
     } catch (err) {
       toast.error(err.response?.data?.message || 'Login failed');
     } finally { setLoading(false); }

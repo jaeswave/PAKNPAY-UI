@@ -597,19 +597,20 @@ export default function SignupPage() {
           )}
           {step === 2 && (
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 56, marginBottom: 12 }}>🎉</div>
+              <div style={{ fontSize: 56, marginBottom: 12 }}>⏳</div>
               <h2
                 style={{
                   margin: "0 0 8px",
                   fontSize: 20,
                   fontWeight: 800,
-                  color: "#16a34a",
+                  color: "#1e40af",
                 }}
               >
-                You're all set!
+                Application Submitted!
               </h2>
               <p style={{ color: "#6b7280", marginBottom: 24 }}>
-                Your parking lot is live. Share this URL with drivers.
+                Your parking lot is under review. Once approved, you'll be able
+                to log in and access your dashboard.
               </p>
               <div
                 style={{
@@ -617,7 +618,7 @@ export default function SignupPage() {
                   border: "1px solid #bbf7d0",
                   borderRadius: 12,
                   padding: 16,
-                  marginBottom: 16,
+                  marginBottom: 20,
                   textAlign: "left",
                 }}
               >
@@ -629,7 +630,7 @@ export default function SignupPage() {
                     color: "#15803d",
                   }}
                 >
-                  Driver Parking URL
+                  Driver Parking URL (will go live once approved)
                 </p>
                 <p
                   style={{
@@ -661,40 +662,22 @@ export default function SignupPage() {
                   Copy Link
                 </button>
               </div>
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <button
-                  onClick={() => navigate("/attendant/dashboard")}
-                  style={{
-                    flex: "1 1 140px",
-                    background: "#f1f5f9",
-                    color: "#1d4ed8",
-                    border: "1px solid #bfdbfe",
-                    padding: "13px",
-                    borderRadius: 10,
-                    fontSize: 14,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                  }}
-                >
-                  Attendant View
-                </button>
-                <button
-                  onClick={() => navigate("/owner/dashboard")}
-                  style={{
-                    flex: "1 1 140px",
-                    background: "#1d4ed8",
-                    color: "#fff",
-                    border: "none",
-                    padding: "13px",
-                    borderRadius: 10,
-                    fontSize: 14,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                  }}
-                >
-                  Owner Dashboard →
-                </button>
-              </div>
+              <button
+                onClick={() => navigate("/pending-approval")}
+                style={{
+                  width: "100%",
+                  background: "#1d4ed8",
+                  color: "#fff",
+                  border: "none",
+                  padding: "13px",
+                  borderRadius: 10,
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Continue →
+              </button>
             </div>
           )}
           {step < 2 && (

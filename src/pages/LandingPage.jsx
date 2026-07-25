@@ -84,7 +84,7 @@ export default function LandingPage() {
 
             {!isMobile && (
               <button
-                onClick={() => navigate("/attendant/login")}
+                onClick={() => navigate("/attendant/signup")}
                 style={{
                   background: "#2563eb",
                   border: "none",

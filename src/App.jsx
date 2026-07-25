@@ -16,9 +16,11 @@ import SettingsPage from "./pages/owner/SettingsPage";
 import AdminLoginPage from "./pages/admin/AdminLoginPage";
 import AdminCommissionsPage from "./pages/admin/AdminCommissionsPage";
 import AdminSettlementsPage from "./pages/admin/AdminSettlementsPage";
+import AdminLotApprovalsPage from "./pages/admin/AdminLotApprovalsPage";
 import ValetBookingPage from "./pages/valet/ValetBookingPage";
 import ValetSimulatedCheckoutPage from "./pages/valet/ValetSimulatedCheckoutPage";
 import ValetVerifyPage from "./pages/valet/ValetVerifyPage";
+import PendingApprovalPage from "./pages/PendingApprovalPage";
 
 const ProtectedRoute = ({ children, ownerOnly = false }) => {
   const { attendant, loading } = useAuth();
@@ -38,8 +40,31 @@ const ProtectedRoute = ({ children, ownerOnly = false }) => {
       </div>
     );
   if (!attendant) return <Navigate to="/attendant/login" />;
+  if (attendant.lotApprovalStatus && attendant.lotApprovalStatus !== "approved")
+    return <Navigate to="/pending-approval" />;
   if (ownerOnly && attendant.role !== "owner")
     return <Navigate to="/attendant/dashboard" />;
+  return children;
+};
+
+const RequireAuth = ({ children }) => {
+  const { attendant, loading } = useAuth();
+  if (loading)
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          fontSize: 16,
+          color: "#64748b",
+        }}
+      >
+        Loading...
+      </div>
+    );
+  if (!attendant) return <Navigate to="/attendant/login" />;
   return children;
 };
 
@@ -76,6 +101,15 @@ export default function App() {
           <Route path="/attendant/signup" element={<SignupPage />} />
 
           <Route
+            path="/pending-approval"
+            element={
+              <RequireAuth>
+                <PendingApprovalPage />
+              </RequireAuth>
+            }
+          />
+
+          <Route
             path="/attendant/dashboard"
             element={
               <ProtectedRoute>
@@ -95,7 +129,7 @@ export default function App() {
           <Route
             path="/owner/dashboard"
             element={
-              <ProtectedRoute ownerOnly>
+              <ProtectedRoute>
                 <OwnerDashboard />
               </ProtectedRoute>
             }
@@ -123,6 +157,14 @@ export default function App() {
             element={
               <ProtectedAdminRoute>
                 <AdminSettlementsPage />
+              </ProtectedAdminRoute>
+            }
+          />
+          <Route
+            path="/admin/lots"
+            element={
+              <ProtectedAdminRoute>
+                <AdminLotApprovalsPage />
               </ProtectedAdminRoute>
             }
           />
