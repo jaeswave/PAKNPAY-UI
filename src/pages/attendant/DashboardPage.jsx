@@ -76,6 +76,42 @@ export default function DashboardPage() {
     } catch {}
   };
 
+  // const handleAction = async (action, sessionId) => {
+  //   setActionLoading(true);
+  //   try {
+  //     if (action === "allow")
+  //       await api.patch(`/sessions/${sessionId}/allow`, {
+  //         spotNumber: spotInput || null,
+  //       });
+  //     else if (action === "cash")
+  //       await api.patch(`/sessions/${sessionId}/cash-paid`, {
+  //         notes: "Cash collected",
+  //       });
+  //     else if (action === "waive")
+  //       await api.patch(`/sessions/${sessionId}/waive`, {
+  //         notes: "Fee waived by attendant",
+  //       });
+  //     else if (action === "exit")
+  //       await api.patch(`/sessions/${sessionId}/confirm-exit`);
+  //     toast.success(
+  //       action === "allow"
+  //         ? "Entry allowed!"
+  //         : action === "cash"
+  //           ? "Marked as cash paid"
+  //           : action === "waive"
+  //             ? "Fee waived"
+  //             : "Exit confirmed",
+  //     );
+  //     setSelected(null);
+  //     setSpotInput("");
+  //     fetchSessions();
+  //   } catch (err) {
+  //     toast.error(err.response?.data?.message || "Action failed");
+  //   } finally {
+  //     setActionLoading(false);
+  //   }
+  // };
+
   const handleAction = async (action, sessionId) => {
     setActionLoading(true);
     try {
@@ -83,25 +119,9 @@ export default function DashboardPage() {
         await api.patch(`/sessions/${sessionId}/allow`, {
           spotNumber: spotInput || null,
         });
-      else if (action === "cash")
-        await api.patch(`/sessions/${sessionId}/cash-paid`, {
-          notes: "Cash collected",
-        });
-      else if (action === "waive")
-        await api.patch(`/sessions/${sessionId}/waive`, {
-          notes: "Fee waived by attendant",
-        });
       else if (action === "exit")
         await api.patch(`/sessions/${sessionId}/confirm-exit`);
-      toast.success(
-        action === "allow"
-          ? "Entry allowed!"
-          : action === "cash"
-            ? "Marked as cash paid"
-            : action === "waive"
-              ? "Fee waived"
-              : "Exit confirmed",
-      );
+      toast.success(action === "allow" ? "Entry allowed!" : "Exit confirmed");
       setSelected(null);
       setSpotInput("");
       fetchSessions();
@@ -215,23 +235,7 @@ export default function DashboardPage() {
               {syncing ? "Syncing..." : `Sync (${offlineCount()})`}
             </button>
           )}
-          <button
-            onClick={handleSimulateCar}
-            disabled={simulating}
-            style={{
-              background: "#7c3aed",
-              color: "#fff",
-              border: "none",
-              padding: "6px 10px",
-              borderRadius: 8,
-              fontSize: 11,
-              fontWeight: 700,
-              cursor: simulating ? "not-allowed" : "pointer",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {simulating ? "..." : "🚗 Simulate Car"}
-          </button>
+         
           <button
             onClick={() => navigate("/attendant/manual")}
             style={{
@@ -518,46 +522,7 @@ export default function DashboardPage() {
                       </button>
                     </>
                   )}
-                  {["active", "pending-payment"].includes(s.status) && (
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
-                        gap: 10,
-                      }}
-                    >
-                      <button
-                        onClick={() => handleAction("cash", s.id)}
-                        disabled={actionLoading}
-                        style={{
-                          background: "#0d9488",
-                          color: "#fff",
-                          border: "none",
-                          padding: "12px",
-                          borderRadius: 10,
-                          fontWeight: 700,
-                          cursor: "pointer",
-                        }}
-                      >
-                        💵 Cash Paid
-                      </button>
-                      <button
-                        onClick={() => handleAction("waive", s.id)}
-                        disabled={actionLoading}
-                        style={{
-                          background: "#f97316",
-                          color: "#fff",
-                          border: "none",
-                          padding: "12px",
-                          borderRadius: 10,
-                          fontWeight: 700,
-                          cursor: "pointer",
-                        }}
-                      >
-                        🆓 Waive Fee
-                      </button>
-                    </div>
-                  )}
+                  
                   {["paid", "cash-paid"].includes(s.status) && (
                     <button
                       onClick={() => handleAction("exit", s.id)}
