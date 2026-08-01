@@ -30,6 +30,7 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [barrierLoading, setBarrierLoading] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [selected, setSelected] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
@@ -74,6 +75,22 @@ export default function DashboardPage() {
       const res = await api.get(`/lots/${lotId}`);
       setLot(res.data.lot);
     } catch {}
+  };
+
+  const handleBarrier = async (action) => {
+    setBarrierLoading(true);
+    try {
+      const res = await api.patch(`/lots/${attendant.lotId}/barrier/${action}`);
+      toast.success(
+        res.data.hardwareConnected
+          ? `Barrier ${action}ed`
+          : `${action === "open" ? "Open" : "Close"} command sent (no hardware connected yet)`,
+      );
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Barrier command failed");
+    } finally {
+      setBarrierLoading(false);
+    }
   };
 
   // const handleAction = async (action, sessionId) => {
@@ -235,7 +252,7 @@ export default function DashboardPage() {
               {syncing ? "Syncing..." : `Sync (${offlineCount()})`}
             </button>
           )}
-         
+
           <button
             onClick={() => navigate("/attendant/manual")}
             style={{
@@ -284,6 +301,40 @@ export default function DashboardPage() {
             }}
           >
             📱 Driver QR
+          </button>
+          <button
+            onClick={() => handleBarrier("open")}
+            disabled={barrierLoading}
+            style={{
+              background: "#16a34a",
+              color: "#fff",
+              border: "none",
+              padding: "6px 10px",
+              borderRadius: 8,
+              fontSize: 11,
+              fontWeight: 700,
+              cursor: barrierLoading ? "not-allowed" : "pointer",
+              whiteSpace: "nowrap",
+            }}
+          >
+            🔓 Open Barrier
+          </button>
+          <button
+            onClick={() => handleBarrier("close")}
+            disabled={barrierLoading}
+            style={{
+              background: "#dc2626",
+              color: "#fff",
+              border: "none",
+              padding: "6px 10px",
+              borderRadius: 8,
+              fontSize: 11,
+              fontWeight: 700,
+              cursor: barrierLoading ? "not-allowed" : "pointer",
+              whiteSpace: "nowrap",
+            }}
+          >
+            🔒 Close Barrier
           </button>
           <button
             onClick={() => setShowValet(true)}
@@ -522,7 +573,7 @@ export default function DashboardPage() {
                       </button>
                     </>
                   )}
-                  
+
                   {["paid", "cash-paid"].includes(s.status) && (
                     <button
                       onClick={() => handleAction("exit", s.id)}
