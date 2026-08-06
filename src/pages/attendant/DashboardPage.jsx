@@ -40,6 +40,7 @@ export default function DashboardPage() {
   const [showValet, setShowValet] = useState(false);
   const [lot, setLot] = useState(null);
   const [showQR, setShowQR] = useState(false);
+  const [showReportIssue, setShowReportIssue] = useState(false);
 
   useEffect(() => {
     fetchSessions();
@@ -337,6 +338,22 @@ export default function DashboardPage() {
             🔒 Close Barrier
           </button>
           <button
+            onClick={() => setShowReportIssue(true)}
+            style={{
+              background: "#78350f",
+              color: "#fff",
+              border: "none",
+              padding: "6px 10px",
+              borderRadius: 8,
+              fontSize: 11,
+              fontWeight: 600,
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+            }}
+          >
+            🚩 Report Issue
+          </button>
+          <button
             onClick={() => setShowValet(true)}
             style={{
               background: "#059669",
@@ -622,6 +639,9 @@ export default function DashboardPage() {
         />
       )}
       {showQR && <DriverQRModal lot={lot} onClose={() => setShowQR(false)} />}
+      {showReportIssue && (
+        <ReportIssueModal onClose={() => setShowReportIssue(false)} />
+      )}
     </div>
   );
 }
@@ -1039,6 +1059,202 @@ function ValetCheckInModal({ onClose, onSuccess }) {
               ← Try another token
             </button>
           </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ReportIssueModal({ onClose }) {
+  const [category, setCategory] = useState("other");
+  const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  const CATEGORIES = [
+    { value: "barrier", label: "🚧 Barrier" },
+    { value: "payment", label: "💳 Payment" },
+    { value: "app_bug", label: "🐞 App Bug" },
+    { value: "session", label: "🚗 Session" },
+    { value: "other", label: "❓ Other" },
+  ];
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!message.trim()) return toast.error("Please describe the issue");
+    setSubmitting(true);
+    try {
+      await api.post("/issues", { category, message });
+      setSent(true);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to submit report");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "#0008",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 16,
+        zIndex: 100,
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          background: "#fff",
+          borderRadius: 16,
+          padding: 24,
+          width: "100%",
+          maxWidth: 400,
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {sent ? (
+          <div style={{ textAlign: "center", padding: "20px 0" }}>
+            <div style={{ fontSize: 44, marginBottom: 10 }}>✅</div>
+            <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 6 }}>
+              Reported!
+            </div>
+            <p style={{ fontSize: 13, color: "#64748b", marginBottom: 20 }}>
+              The platform team can see this now.
+            </p>
+            <button
+              onClick={onClose}
+              style={{
+                background: "#0a2540",
+                color: "#fff",
+                border: "none",
+                padding: "10px 24px",
+                borderRadius: 8,
+                cursor: "pointer",
+                fontWeight: 600,
+              }}
+            >
+              Done
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <div style={{ fontWeight: 800, fontSize: 17, marginBottom: 4 }}>
+              🚩 Report an Issue
+            </div>
+            <p style={{ fontSize: 13, color: "#64748b", marginBottom: 16 }}>
+              Let the platform team know what's wrong — they'll see this on
+              their dashboard.
+            </p>
+
+            <label
+              style={{
+                display: "block",
+                fontSize: 13,
+                fontWeight: 600,
+                marginBottom: 6,
+              }}
+            >
+              Category
+            </label>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 8,
+                marginBottom: 14,
+              }}
+            >
+              {CATEGORIES.map((c) => (
+                <button
+                  key={c.value}
+                  type="button"
+                  onClick={() => setCategory(c.value)}
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: 20,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    border: category === c.value ? "none" : "1px solid #e2e8f0",
+                    background: category === c.value ? "#0a2540" : "#fff",
+                    color: category === c.value ? "#fff" : "#64748b",
+                  }}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+
+            <label
+              style={{
+                display: "block",
+                fontSize: 13,
+                fontWeight: 600,
+                marginBottom: 6,
+              }}
+            >
+              What's happening?
+            </label>
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Describe the issue..."
+              rows={4}
+              style={{
+                width: "100%",
+                border: "1px solid #d1d5db",
+                borderRadius: 10,
+                padding: 12,
+                fontSize: 14,
+                outline: "none",
+                boxSizing: "border-box",
+                marginBottom: 16,
+                fontFamily: "inherit",
+              }}
+              required
+            />
+
+            <div style={{ display: "flex", gap: 10 }}>
+              <button
+                type="button"
+                onClick={onClose}
+                style={{
+                  flex: 1,
+                  background: "#f1f5f9",
+                  color: "#374151",
+                  border: "none",
+                  padding: "12px",
+                  borderRadius: 10,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={submitting}
+                style={{
+                  flex: 2,
+                  background: "#78350f",
+                  color: "#fff",
+                  border: "none",
+                  padding: "12px",
+                  borderRadius: 10,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  opacity: submitting ? 0.7 : 1,
+                }}
+              >
+                {submitting ? "Sending..." : "Submit Report"}
+              </button>
+            </div>
+          </form>
         )}
       </div>
     </div>

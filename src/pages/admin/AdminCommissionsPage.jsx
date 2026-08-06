@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import adminApi from '../../utils/adminApi';
-import toast from 'react-hot-toast';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import adminApi from "../../utils/adminApi";
+import toast from "react-hot-toast";
 
 export default function AdminCommissionsPage() {
   const navigate = useNavigate();
@@ -10,10 +10,19 @@ export default function AdminCommissionsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [lotNameFilter, setLotNameFilter] = useState("");
 
   useEffect(() => {
-    if (!localStorage.getItem('parkpay_admin_token')) {
-      navigate('/admin/login');
+    const timer = setTimeout(() => {
+      setPage(1);
+      fetchAll();
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [lotNameFilter]);
+
+  useEffect(() => {
+    if (!localStorage.getItem("parkpay_admin_token")) {
+      navigate("/admin/login");
       return;
     }
     fetchAll();
@@ -22,41 +31,92 @@ export default function AdminCommissionsPage() {
   const fetchAll = async () => {
     setLoading(true);
     try {
+      const lotNameQuery = lotNameFilter.trim()
+        ? `&lotName=${encodeURIComponent(lotNameFilter.trim())}`
+        : "";
       const [summaryRes, ledgerRes] = await Promise.all([
-        adminApi.get('/payments/commissions/summary'),
-        adminApi.get(`/payments/commissions?page=${page}&limit=20`),
+        adminApi.get("/payments/commissions/summary"),
+        adminApi.get(
+          `/payments/commissions?page=${page}&limit=20${lotNameQuery}`,
+        ),
       ]);
       setSummary(summaryRes.data);
       setRecords(ledgerRes.data.records || []);
       setTotalPages(ledgerRes.data.totalPages || 1);
     } catch (err) {
       if (err.response?.status === 401 || err.response?.status === 403) {
-        toast.error('Session expired — please log in again');
-        localStorage.removeItem('parkpay_admin_token');
-        navigate('/admin/login');
+        toast.error("Session expired — please log in again");
+        localStorage.removeItem("parkpay_admin_token");
+        navigate("/admin/login");
       } else {
-        toast.error('Failed to load commission data');
+        toast.error("Failed to load commission data");
       }
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // const fetchAll = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const [summaryRes, ledgerRes] = await Promise.all([
+  //       adminApi.get('/payments/commissions/summary'),
+  //       adminApi.get(`/payments/commissions?page=${page}&limit=20`),
+  //     ]);
+  //     setSummary(summaryRes.data);
+  //     setRecords(ledgerRes.data.records || []);
+  //     setTotalPages(ledgerRes.data.totalPages || 1);
+  //   } catch (err) {
+  //     if (err.response?.status === 401 || err.response?.status === 403) {
+  //       toast.error('Session expired — please log in again');
+  //       localStorage.removeItem('parkpay_admin_token');
+  //       navigate('/admin/login');
+  //     } else {
+  //       toast.error('Failed to load commission data');
+  //     }
+  //   } finally { setLoading(false); }
+  // };
+
   const logout = () => {
-    localStorage.removeItem('parkpay_admin_token');
-    navigate('/admin/login');
+    localStorage.removeItem("parkpay_admin_token");
+    navigate("/admin/login");
   };
 
   const statCard = (label, value, count, color, bg) => (
-    <div style={{ background: bg, border: `1px solid ${color}22`, borderRadius: 14, padding: '18px 16px' }}>
-      <div style={{ fontSize: 12, color: '#64748b', marginBottom: 6 }}>{label}</div>
-      <div style={{ fontSize: 26, fontWeight: 800, color }}>₦{(value || 0).toLocaleString()}</div>
-      {count !== undefined && <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>{count} transaction{count === 1 ? '' : 's'}</div>}
+    <div
+      style={{
+        background: bg,
+        border: `1px solid ${color}22`,
+        borderRadius: 14,
+        padding: "18px 16px",
+      }}
+    >
+      <div style={{ fontSize: 12, color: "#64748b", marginBottom: 6 }}>
+        {label}
+      </div>
+      <div style={{ fontSize: 26, fontWeight: 800, color }}>
+        ₦{(value || 0).toLocaleString()}
+      </div>
+      {count !== undefined && (
+        <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>
+          {count} transaction{count === 1 ? "" : "s"}
+        </div>
+      )}
     </div>
   );
 
   if (loading && !summary) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
-        <p style={{ color: '#64748b' }}>Loading commission data...</p>
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#f8fafc",
+        }}
+      >
+        <p style={{ color: "#64748b" }}>Loading commission data...</p>
       </div>
     );
   }
@@ -107,6 +167,20 @@ export default function AdminCommissionsPage() {
             }}
           >
             Lot Approvals
+          </button>
+          <button
+            onClick={() => navigate("/admin/issues")}
+            style={{
+              background: "transparent",
+              color: "#8ab4f8",
+              border: "1px solid #1e3a5f",
+              padding: "8px 14px",
+              borderRadius: 8,
+              cursor: "pointer",
+              fontSize: 12,
+            }}
+          >
+            Issues
           </button>
           <button
             onClick={() => navigate("/admin/settlements")}
@@ -194,8 +268,32 @@ export default function AdminCommissionsPage() {
             boxShadow: "0 1px 8px #0001",
           }}
         >
-          <div style={{ fontWeight: 700, marginBottom: 16, fontSize: 15 }}>
-            Commission Ledger
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: 10,
+              marginBottom: 16,
+            }}
+          >
+            <div style={{ fontWeight: 700, fontSize: 15 }}>
+              Commission Ledger
+            </div>
+            <input
+              value={lotNameFilter}
+              onChange={(e) => setLotNameFilter(e.target.value)}
+              placeholder="Filter by lot name..."
+              style={{
+                border: "1px solid #d1d5db",
+                borderRadius: 8,
+                padding: "8px 12px",
+                fontSize: 13,
+                outline: "none",
+                width: 220,
+              }}
+            />
           </div>
           {records.length === 0 ? (
             <div

@@ -21,6 +21,7 @@ import ValetBookingPage from "./pages/valet/ValetBookingPage";
 import ValetSimulatedCheckoutPage from "./pages/valet/ValetSimulatedCheckoutPage";
 import ValetVerifyPage from "./pages/valet/ValetVerifyPage";
 import PendingApprovalPage from "./pages/PendingApprovalPage";
+import AdminIssuesPage from "./pages/admin/AdminIssuesPage";
 
 const ProtectedRoute = ({ children, ownerOnly = false }) => {
   const { attendant, loading } = useAuth();
@@ -149,6 +150,14 @@ export default function App() {
             element={
               <ProtectedAdminRoute>
                 <AdminCommissionsPage />
+              </ProtectedAdminRoute>
+            }
+          />
+          <Route
+            path="/admin/issues"
+            element={
+              <ProtectedAdminRoute>
+                <AdminIssuesPage />
               </ProtectedAdminRoute>
             }
           />
